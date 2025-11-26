@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gundex_mobile/main/screens/menu.dart';
 import 'package:gundex_mobile/explore_gunung/screens/explore.dart';
+import '../../log_pendakian/screens/lod_pendakian_list.dart';
 
 class ItemCard extends StatelessWidget {
   // Menampilkan kartu dengan ikon dan nama.
@@ -33,6 +34,14 @@ class ItemCard extends StatelessWidget {
                   MaterialPageRoute(
                     builder: (context) => MyApp(),
             ));
+          }
+          else if (item.name == "Log Pendakian") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const LogPendakianListPage(),
+              ),
+            );
           }
 
         },
