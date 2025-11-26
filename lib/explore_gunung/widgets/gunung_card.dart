@@ -35,7 +35,7 @@ class GunungCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(8.0),
               child: Image.network(
-                imageUrl,
+                'http://localhost:8000/proxy-image/?url=${Uri.encodeComponent(imageUrl)}',
                 width: 80,
                 height: 80,
                 fit: BoxFit.cover,

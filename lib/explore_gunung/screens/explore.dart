@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:gundex_mobile/explore_gunung/models/gunung.dart'; 
-import 'package:gundex_mobile/explore_gunung/screens/tes_edit.dart';
+import 'package:gundex_mobile/explore_gunung/screens/edit.dart';
 import 'package:gundex_mobile/explore_gunung/widgets/gunung_card.dart'; 
 
 class ExploreGunungScreen extends StatefulWidget {
@@ -32,7 +32,7 @@ class _ExploreGunungScreenState extends State<ExploreGunungScreen> {
     });
 
     try {
-      final url = Uri.parse('$baseUrl/jsonall/');
+      final url = Uri.parse('$baseUrl/jsonall/?q=$query');
       final response = await http.get(url);
       if (response.statusCode == 200) {
         final jsonMap = jsonDecode(response.body);

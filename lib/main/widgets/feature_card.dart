@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gundex_mobile/main/screens/menu.dart';
-import 'package:gundex_mobile/explore_gunung/screens/tes_explore.dart';
+import 'package:gundex_mobile/explore_gunung/screens/explore.dart';
 
 class ItemCard extends StatelessWidget {
   // Menampilkan kartu dengan ikon dan nama.
