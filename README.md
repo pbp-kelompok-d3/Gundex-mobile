@@ -82,7 +82,15 @@ Admin memiliki peran sebagai pengelola utama sistem. Mereka bertanggung jawab un
 Hiker adalah pengguna umum yang memanfaatkan seluruh fitur GunDex. Mereka dapat melihat daftar gunung, menambah gunung ke wishlist, mencatat log pendakian pribadi, membaca artikel, dan mengelola akun mereka sendiri. Dengan akun pribadi, setiap hiker bisa menyimpan jejak pendakiannya dan membangun arsip perjalanan mereka dari waktu ke waktu. GunDex membantu para pendaki untuk tetap terhubung dengan alam, komunitas, dan diri mereka sendiri. Karena setiap pendakian punya cerita yang layak untuk diingat.
 
 ## Alur pengintegrasian dengan web service
+Aplikasi Flutter tidak berkomunikasi langsung dengan database. Semua data dikirim dan diterima melalui Django Gundex yang berjalan di PWS (Pacil Web Service) menggunakan request HTTP dengan format JSON. Django menangani autentikasi pengguna, validasi input, logika bisnis, serta operasi baca tulis ke database melalui Django ORM (Object Relational Mapping).
 
+Alur integrasinya adalah sebagai berikut:
+
+1. Flutter mengirimkan request HTTP (GET, POST, PUT, DELETE) ke endpoint Django yang telah disiapkan untuk keperluan seperti mengambil data gunung, mengelola wishlist, atau mencatat log pendakian.
+2. Django menerima request tersebut, melakukan autentikasi dan otorisasi berdasarkan akun pengguna yang sama dengan versi web, lalu memproses permintaan menggunakan logika bisnis dan ORM.
+3. Django mengembalikan response berupa JSON kepada aplikasi Flutter. Flutter kemudian mengolah data tersebut dan menampilkannya sebagai antarmuka bagi pengguna.
+
+Dengan pendekatan ini, aplikasi Flutter dan aplikasi web GUNDEX menggunakan backend dan database yang sama. PWS berfungsi sebagai platform hosting untuk Django dan tidak menambahkan lapisan logika baru. Pendekatan ini memastikan konsistensi data antar platform dan mempermudah pemeliharaan aplikasi.
 
 ## Link PWS dan design
 https://rasyad.zulham-gundex.pbp.cs.ui.ac.id

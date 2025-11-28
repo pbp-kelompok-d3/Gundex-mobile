@@ -32,7 +32,7 @@ class ItemCard extends StatelessWidget {
             Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => MyApp(),
+                    builder: (context) => ExploreGunungScreen(),
             ));
           }
           else if (item.name == "Log Pendakian") {
