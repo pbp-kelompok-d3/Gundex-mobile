@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:gundex_mobile/explore_gunung/models/gunung.dart'; 
 import 'package:gundex_mobile/explore_gunung/screens/edit.dart';
+import 'package:gundex_mobile/explore_gunung/screens/detail.dart';
 import 'package:gundex_mobile/explore_gunung/widgets/gunung_card.dart'; 
 
 class ExploreGunungScreen extends StatefulWidget {
@@ -117,6 +118,15 @@ class _ExploreGunungScreenState extends State<ExploreGunungScreen> {
                               ketinggian: "${gunung.ketinggian} mdpl", 
                               lokasi: gunung.provinsi,
                               imageUrl: gunung.foto,
+
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => GunungDetailScreen(gunung: gunung),
+                                  ),
+                                );
+                              },
                               
                               onEdit: () async {
                                 final result = await Navigator.push(
