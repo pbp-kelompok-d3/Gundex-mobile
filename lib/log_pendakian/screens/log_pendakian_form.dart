@@ -1,10 +1,8 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
+import '../models/log_pendakian.dart';
 import 'package:gundex_mobile/explore_gunung/models/gunung.dart'; // Result, Gunung
-import 'lod_pendakian_list.dart';
 
 class LogPendakianFormPage extends StatefulWidget {
   const LogPendakianFormPage({
@@ -51,8 +49,6 @@ class _LogPendakianFormPageState extends State<LogPendakianFormPage> {
     _notesController = TextEditingController(text: init?.notes ?? '');
     _summitReached = init?.summitReached ?? false;
 
-    // Untuk edit: kita tidak punya detail lengkap gunung, jadi biarkan
-    // _selectedGunung null; nanti kalau user ganti pilihan, baru diisi.
   }
 
   @override
