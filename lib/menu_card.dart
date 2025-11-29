@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gundex_mobile/explore_gunung/screens/explore.dart';
+import 'package:gundex_mobile/log_pendakian/screens/lod_pendakian_list.dart';
 import 'package:gundex_mobile/menu.dart';
 import 'package:gundex_mobile/userprofile/edit_profile.dart';
 import 'package:gundex_mobile/userprofile/login.dart';
@@ -94,6 +95,14 @@ class MenuCard extends StatelessWidget {
             );
           }
           // Log Pendakian and Wishlist will be handled by requiresLogin check above
+          else if (item.name == "Log Pendakian") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const LogPendakianListPage(),
+              ),
+            );
+          }
         },
         borderRadius: BorderRadius.circular(16),
         child: Container(

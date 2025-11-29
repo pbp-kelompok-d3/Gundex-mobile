@@ -1,11 +1,12 @@
 import 'dart:convert';
-
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'log_pendakian_form.dart';
 
 class LogPendakian {
   final String id;
+  final String? gunungId;
   final String gunungNama;
   final String? startDate;
   final String? endDate;
@@ -18,6 +19,7 @@ class LogPendakian {
 
   LogPendakian({
     required this.id,
+    this.gunungId,
     required this.gunungNama,
     required this.startDate,
     required this.endDate,
@@ -32,6 +34,7 @@ class LogPendakian {
   factory LogPendakian.fromJson(Map<String, dynamic> json) {
     return LogPendakian(
       id: json['id'].toString(),
+      gunungId: json['gunung_id'] as String?,
       gunungNama: (json['gunung_nama'] ?? '-') as String,
       startDate: json['start_date'] as String?,
       endDate: json['end_date'] as String?,
@@ -55,8 +58,11 @@ class LogPendakianListPage extends StatefulWidget {
 }
 
 class _LogPendakianListPageState extends State<LogPendakianListPage> {
+  static const String _baseUrl = "http://localhost:8000";
+
   late Future<void> _initialLoad;
   final List<LogPendakian> _logs = [];
+
   CardActionMode _mode = CardActionMode.none;
 
   @override
@@ -66,28 +72,26 @@ class _LogPendakianListPageState extends State<LogPendakianListPage> {
   }
 
   Future<void> _loadLogs() async {
-    final logs = await _fetchLogs();
+    final request = Provider.of<CookieRequest>(context, listen: false);
+    final response = await request.get("$_baseUrl/log/json/");
+    final Map<String, dynamic> jsonMap = response as Map<String, dynamic>;
+    final List<dynamic> rawList = jsonMap["results"] as List<dynamic>;
+
     _logs
       ..clear()
-      ..addAll(logs);
+      ..addAll(
+        rawList
+            .map((e) => LogPendakian.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      );
   }
 
-  Future<List<LogPendakian>> _fetchLogs() async {
-    const String baseUrl = "http://127.0.0.1:8000";
-    final response = await http.get(Uri.parse('$baseUrl/log/json/'));
-
-    if (response.statusCode != 200) {
-      throw Exception('Gagal memuat log pendakian: ${response.statusCode}');
-    }
-
-    final decoded =
-    jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
-    final List<dynamic> rawList = decoded['results'] as List<dynamic>;
-
-    return rawList
-        .map((e) => LogPendakian.fromJson(e as Map<String, dynamic>))
-        .toList();
+  Future<void> _refreshLogs() async {
+    _initialLoad = _loadLogs();
+    setState(() {});
   }
+
+
 
   Future<void> _addLog() async {
     final newLog = await Navigator.push<LogPendakian>(
@@ -97,31 +101,95 @@ class _LogPendakianListPageState extends State<LogPendakianListPage> {
       ),
     );
 
-    if (newLog != null) {
-      setState(() {
-        _logs.add(newLog);
-      });
+    if (newLog == null) return;
+
+    final request = context.read<CookieRequest>();
+
+    final payload = {
+      "gunung_id": newLog.gunungId,
+      "start_date": newLog.startDate,
+      "end_date": newLog.endDate,
+      "summit_reached": newLog.summitReached,
+      "team_size": newLog.teamSize,
+      "rating": newLog.rating,
+      "notes": newLog.notes,
+    };
+
+    final response = await request.postJson(
+      "$_baseUrl/log/api/create/",
+      jsonEncode(payload),
+    ) as Map<String, dynamic>;
+
+    if (response["success"] == true) {
+      await _refreshLogs();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Log pendakian berhasil ditambahkan.")),
+      );
+    } else {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Gagal menambah log: ${response["error"] ?? "Terjadi kesalahan."}",
+          ),
+        ),
+      );
     }
   }
 
+
   Future<void> _editLog(int index) async {
+    final current = _logs[index];
+
     final edited = await Navigator.push<LogPendakian>(
       context,
       MaterialPageRoute(
-        builder: (_) => LogPendakianFormPage(
-          initialLog: _logs[index],
-        ),
+        builder: (_) => LogPendakianFormPage(initialLog: current),
       ),
     );
 
-    if (edited != null) {
-      setState(() {
-        _logs[index] = edited;
-      });
+    if (edited == null) return;
+
+    final request = context.read<CookieRequest>();
+
+    final payload = {
+      "gunung_id": edited.gunungId,
+      "start_date": edited.startDate,
+      "end_date": edited.endDate,
+      "summit_reached": edited.summitReached,
+      "team_size": edited.teamSize,
+      "rating": edited.rating,
+      "notes": edited.notes,
+    };
+
+    final response = await request.postJson(
+      "$_baseUrl/log/api/update/${current.id}/",
+      jsonEncode(payload),
+    ) as Map<String, dynamic>;
+
+    if (response["success"] == true) {
+      await _refreshLogs();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Perubahan log tersimpan.")),
+      );
+    } else {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Gagal mengubah log: ${response["error"] ?? "Terjadi kesalahan."}",
+          ),
+        ),
+      );
     }
   }
 
+
   Future<void> _deleteLog(int index) async {
+    final current = _logs[index];
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -143,10 +211,30 @@ class _LogPendakianListPageState extends State<LogPendakianListPage> {
       ),
     );
 
-    if (confirmed == true) {
-      setState(() {
-        _logs.removeAt(index);
-      });
+    if (confirmed != true) return;
+
+    final request = context.read<CookieRequest>();
+
+    final response = await request.postJson(
+      "$_baseUrl/log/api/delete/${current.id}/",
+      jsonEncode({}),
+    ) as Map<String, dynamic>;
+
+    if (response["success"] == true) {
+      await _refreshLogs();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Log pendakian terhapus.")),
+      );
+    } else {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Gagal menghapus log: ${response["error"] ?? "Terjadi kesalahan."}",
+          ),
+        ),
+      );
     }
   }
 
