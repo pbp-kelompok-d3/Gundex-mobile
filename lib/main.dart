@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gundex_mobile/wishlist/screens/wishlist_page.dart';
 
 void main() {
   runApp(const MyApp());
