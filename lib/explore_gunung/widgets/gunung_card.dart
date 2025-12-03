@@ -5,6 +5,7 @@ class GunungCard extends StatelessWidget {
   final String ketinggian;
   final String lokasi;
   final String imageUrl;
+  final bool isAdmin;
   final VoidCallback onTap;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
@@ -15,6 +16,7 @@ class GunungCard extends StatelessWidget {
     required this.ketinggian,
     required this.lokasi,
     required this.imageUrl,
+    this.isAdmin = false,
     required this.onTap,
     required this.onEdit,
     required this.onDelete,
@@ -23,20 +25,19 @@ class GunungCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 4, // Memberikan efek bayangan
+      elevation: 4, 
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12), // Sudut membulat
-        side: const BorderSide(color: Color.fromARGB(255, 5, 100, 8), width: 1.5), // Border biru sesuai sketsa
+        borderRadius: BorderRadius.circular(12), 
+        side: const BorderSide(color: Color.fromARGB(255, 5, 100, 8), width: 1.5), 
       ),
-      child: InkWell( // Bungkus isi Card dengan InkWell agar bisa diklik
-        onTap: onTap, // Pasang fungsinya disini
+      child: InkWell( 
+        onTap: onTap, 
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // 1. Bagian Foto Gunung (Kiri)
               ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
                 child: Image.network(
@@ -54,9 +55,8 @@ class GunungCard extends StatelessWidget {
                   },
                 ),
               ),
-              const SizedBox(width: 16), // Jarak antara foto dan teks
+              const SizedBox(width: 16), 
 
-              // 2. Bagian Informasi Text (Tengah)
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,18 +83,16 @@ class GunungCard extends StatelessWidget {
                 ),
               ),
 
-              // 3. Bagian Tombol Aksi (Kanan)
+              if (isAdmin)
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Tombol Edit (Lingkaran)
                   _buildCircleButton(
                     icon: Icons.edit,
                     color: Color.fromARGB(255, 5, 100, 8),
                     onPressed: onEdit,
                   ),
                   const SizedBox(width: 8),
-                  // Tombol Delete (Lingkaran)
                   _buildCircleButton(
                     icon: Icons.delete,
                     color: Colors.red,
@@ -109,7 +107,6 @@ class GunungCard extends StatelessWidget {
     );
   }
 
-  // Helper widget untuk membuat tombol bulat kecil
   Widget _buildCircleButton({
     required IconData icon,
     required Color color,

@@ -1,10 +1,11 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:gundex_mobile/explore_gunung/models/gunung.dart'; 
 import 'package:gundex_mobile/explore_gunung/screens/edit.dart';
 import 'package:gundex_mobile/explore_gunung/screens/detail.dart';
 import 'package:gundex_mobile/explore_gunung/widgets/gunung_card.dart'; 
+import 'package:gundex_mobile/userprofile/login.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 class ExploreGunungScreen extends StatefulWidget {
   const ExploreGunungScreen({super.key});
@@ -18,58 +19,54 @@ class _ExploreGunungScreenState extends State<ExploreGunungScreen> {
   
   List<Result> _gunungList = [];
   bool _isLoading = true;
+  bool _isAdmin = false; 
   String _searchQuery = "";
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    fetchGunung();
   }
 
-  Future<void> fetchGunung([String query = ""]) async {
+  Future<void> fetchGunung(CookieRequest request, [String query = ""]) async {
     setState(() {
       _isLoading = true;
     });
 
     try {
-      final url = Uri.parse('$baseUrl/jsonall/?q=$query');
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
-        final jsonMap = jsonDecode(response.body);
-        
-        Gunung responseData = Gunung.fromJson(jsonMap);
+      final response = await request.get('$baseUrl/jsonall/?q=$query');
+      
+      Gunung responseData = Gunung.fromJson(response);
+      
+      if(mounted) {
         setState(() {
           _gunungList = responseData.results;
+          _isAdmin = responseData.isAdmin; 
           _isLoading = false;
         });
-      } else {
-        throw Exception('Gagal load data');
       }
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
-      );
+      if(mounted) {
+        setState(() {
+          _isLoading = false;
+          _isAdmin = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: $e")),
+        );
+      }
     }
   }
 
-  Future<void> deleteGunung(String id) async {
+  Future<void> deleteGunung(CookieRequest request, String id) async {
     try {
-      final url = Uri.parse('$baseUrl/json/$id/delete');
-      final response = await http.post(url);
+      final response = await request.post('$baseUrl/json/$id/delete', {});
 
-      if (response.statusCode == 200) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Berhasil dihapus!")),
         );
-        fetchGunung(_searchQuery); 
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Gagal menghapus data.")),
-        );
+        fetchGunung(request, _searchQuery); 
       }
     } catch (e) {
       print("Error deleting: $e");
@@ -78,6 +75,12 @@ class _ExploreGunungScreenState extends State<ExploreGunungScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
+
+    if (_gunungList.isEmpty && _isLoading) {
+      fetchGunung(request);
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text("Explore Gunung")),
       body: Column(
@@ -95,7 +98,7 @@ class _ExploreGunungScreenState extends State<ExploreGunungScreen> {
               ),
               onChanged: (value) {
                 _searchQuery = value;
-                fetchGunung(value);
+                fetchGunung(request, value);
               },
             ),
           ),
@@ -118,14 +121,42 @@ class _ExploreGunungScreenState extends State<ExploreGunungScreen> {
                               ketinggian: "${gunung.ketinggian} mdpl", 
                               lokasi: gunung.provinsi,
                               imageUrl: gunung.foto,
+                              
+                              isAdmin: _isAdmin && request.loggedIn, 
 
                               onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => GunungDetailScreen(gunung: gunung),
-                                  ),
-                                );
+                                if (request.loggedIn) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => GunungDetailScreen(gunung: gunung),
+                                    ),
+                                  );
+                                } else {
+                                  showDialog(
+                                    context: context,
+                                    builder: (ctx) => AlertDialog(
+                                      title: const Text("Login Diperlukan"),
+                                      content: const Text("Silakan login untuk melihat detail gunung."),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(ctx),
+                                          child: const Text("Batal"),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.pop(ctx);
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(builder: (context) => const LoginPage()),
+                                            );
+                                          },
+                                          child: const Text("Login"),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }
                               },
                               
                               onEdit: () async {
@@ -136,7 +167,7 @@ class _ExploreGunungScreenState extends State<ExploreGunungScreen> {
                                   ),
                                 );
                                 if (result == true) {
-                                  fetchGunung(_searchQuery);
+                                  fetchGunung(request, _searchQuery);
                                 }
                               },
                               
@@ -154,7 +185,7 @@ class _ExploreGunungScreenState extends State<ExploreGunungScreen> {
                                       TextButton(
                                         onPressed: () {
                                           Navigator.pop(ctx);
-                                          deleteGunung(gunung.id);
+                                          deleteGunung(request, gunung.id);
                                         },
                                         child: const Text("Hapus", style: TextStyle(color: Colors.red)),
                                       ),

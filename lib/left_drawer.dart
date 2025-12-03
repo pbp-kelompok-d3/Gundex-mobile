@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gundex_mobile/explore_gunung/screens/explore.dart';
 import 'package:gundex_mobile/menu.dart';
 import 'package:gundex_mobile/userprofile/edit_profile.dart';
 import 'package:gundex_mobile/userprofile/login.dart';
@@ -112,11 +113,13 @@ class LeftDrawer extends StatelessWidget {
             leading: const Icon(Icons.terrain, color: Color(0xFF87A330)),
             title: const Text('Explore Gunung'),
             onTap: () {
-              Navigator.pop(context);
-              // TODO: Navigate to Explore Gunung page when implemented
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ExploreGunungScreen()),
+              );
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Explore Gunung - Coming soon!'),
+                  content: Text('You pressed Explore Gunung'),
                   backgroundColor: Color(0xFF87A330),
                 ),
               );
