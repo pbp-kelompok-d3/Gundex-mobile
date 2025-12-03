@@ -10,7 +10,6 @@ import 'package:provider/provider.dart';
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
 
-  // Helper function to show login required dialog
   void _showLoginRequired(BuildContext context, String feature) {
     showDialog(
       context: context,
