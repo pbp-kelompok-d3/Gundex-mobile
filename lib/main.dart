@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
-import 'package:gundex_mobile/menu.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+
+import 'menu.dart';
+import 'artikel/screens/artikel_list_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const GunDexApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class GunDexApp extends StatelessWidget {
+  const GunDexApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +28,7 @@ class MyApp extends StatelessWidget {
             brightness: Brightness.light,
           ),
         ),
-        home: const MyHomePage(),
+        home: const ArtikelListPage(),
         debugShowCheckedModeBanner: false,
       ),
     );

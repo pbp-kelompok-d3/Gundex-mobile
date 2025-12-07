@@ -76,17 +76,18 @@ class _ArtikelDetailPageState extends State<ArtikelDetailPage> {
             return Center(child: Text('Error: ${snapshot.error ?? "Data tidak ditemukan"}'));
           }
           final a = snapshot.data!;
+          final proxied = a.proxied(ArtikelService.baseUrl);
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (a.image.isNotEmpty)
+                if (proxied != null)
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: Image.network(
-                      a.proxied(ArtikelService.baseUrl),
+                      proxied,
                       height: 220,
                       width: double.infinity,
                       fit: BoxFit.cover,
@@ -96,7 +97,7 @@ class _ArtikelDetailPageState extends State<ArtikelDetailPage> {
                         alignment: Alignment.center,
                         child: const Icon(Icons.image_not_supported),
                       ),
-                    )
+                    ),
                   ),
                 const SizedBox(height: 16),
                 Text(
@@ -133,6 +134,7 @@ class _ArtikelDetailPageState extends State<ArtikelDetailPage> {
                     );
                     if (updated == true) {
                       _reload();
+                      Navigator.pop(context, true);
                     }
                   },
                   icon: const Icon(Icons.edit),

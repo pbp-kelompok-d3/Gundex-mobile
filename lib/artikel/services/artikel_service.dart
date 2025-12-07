@@ -43,7 +43,7 @@ class ArtikelService {
   }) async {
     final req = http.MultipartRequest(
       'POST',
-      _uri('/artikel/api/artikel/create/'),
+      _uri('/artikel/api/flutter/create/'),
     );
 
     req.fields['title'] = title;
@@ -75,7 +75,7 @@ class ArtikelService {
   // ======================
   // EDIT
   // ======================
-  static Future<void> editArtikel({
+  static Future<bool> editArtikel({
     required String id,
     required String title,
     required String description,
@@ -85,7 +85,7 @@ class ArtikelService {
   }) async {
     final req = http.MultipartRequest(
       'POST',
-      _uri('/artikel/api/artikel/$id/edit/'),
+      _uri('/artikel/api/flutter/$id/edit/'),
     );
 
     req.fields['title'] = title;
@@ -96,19 +96,29 @@ class ArtikelService {
     }
 
     if (imageBytes != null && imageName != null) {
-      req.files.add(http.MultipartFile.fromBytes(
-        'image',
-        imageBytes,
-        filename: imageName,
-      ));
+      req.files.add(
+        http.MultipartFile.fromBytes(
+          'image',
+          imageBytes,
+          filename: imageName,
+        ),
+      );
     }
 
     final resp = await http.Response.fromStream(await req.send());
-    if (resp.statusCode != 200) throw Exception(resp.body);
+
+    if (resp.statusCode == 200) {
+      return true; // ← penting
+    }
+    return false;
   }
 
+  // ======================
+  // DELETE
+  // ======================
   static Future<void> deleteArtikel(String id) async {
-    final res = await http.delete(_uri('/artikel/api/artikel/$id/delete/'));
+    final res = await http.delete(_uri('/artikel/api/flutter/$id/delete/'));
+
     if (res.statusCode != 200) throw Exception(res.body);
   }
 }

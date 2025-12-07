@@ -2,7 +2,7 @@ class Artikel {
   final String id;
   final String title;
   final String description;
-  final String image; // absolute/relative URL
+  final String? image;
   final int views;
   final int likes;
   final DateTime createdAt;
@@ -22,16 +22,18 @@ class Artikel {
       id: json['id'] as String,
       title: json['title'] as String,
       description: json['description'] as String,
-      image: (json['image'] ?? '') as String,
+      image: json['image'] == "" ? null : json['image'],
       views: json['views'] as int,
       likes: json['likes'] as int,
       createdAt: DateTime.parse(json['created_at'] as String),
     );
   }
 
-  String proxied(String baseUrl) {
-  if (image.isEmpty) return "";
-  final encoded = Uri.encodeFull(image);
-  return "$baseUrl/artikel/proxy/?url=$encoded";
-}
+  /// Menghasilkan URL proxy agar gambar local Django bisa dibuka Flutter Web
+  String? proxied(String baseUrl) {
+    if (image == null || image!.trim().isEmpty) return null;
+
+    final encoded = Uri.encodeFull(image!);
+    return "$baseUrl/artikel/proxy/?url=$encoded";
+  }
 }

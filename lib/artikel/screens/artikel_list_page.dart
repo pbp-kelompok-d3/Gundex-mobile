@@ -3,7 +3,6 @@ import '../models/artikel.dart';
 import '../services/artikel_service.dart';
 import 'artikel_detail_page.dart';
 import 'artikel_form.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 class ArtikelListPage extends StatefulWidget {
   const ArtikelListPage({super.key});
@@ -42,6 +41,7 @@ class _ArtikelListPageState extends State<ArtikelListPage> {
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
+
           final artikels = snapshot.data ?? [];
 
           if (artikels.isEmpty) {
@@ -53,15 +53,19 @@ class _ArtikelListPageState extends State<ArtikelListPage> {
             child: ListView.builder(
               itemCount: artikels.length,
               itemBuilder: (context, index) {
-                final a = artikels[index];
+                final a = artikels[index];   // <-- DIBENERIN
+
                 return Card(
                   margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   child: ListTile(
-                    leading: a.image.isNotEmpty
+                    leading: (a.image != null && a.image!.isNotEmpty)
                         ? Image.network(
-                          a.proxied(ArtikelService.baseUrl),
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => const Icon(Icons.image_not_supported),
+                            a.proxied(ArtikelService.baseUrl) ?? "",
+                            width: 60,
+                            height: 60,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) =>
+                                const Icon(Icons.image_not_supported),
                           )
                         : const Icon(Icons.image),
                     title: Text(a.title),
@@ -77,13 +81,18 @@ class _ArtikelListPageState extends State<ArtikelListPage> {
                         Text(a.likes.toString()),
                       ],
                     ),
-                    onTap: () {
-                      Navigator.push(
+                    onTap: () async {
+                      final changed = await Navigator.push<bool>(
                         context,
                         MaterialPageRoute(
                           builder: (_) => ArtikelDetailPage(artikelId: a.id),
                         ),
                       );
+
+                      // Kalau dari edit/delete hasilnya true → refresh listpage
+                      if (changed == true) {
+                        _refresh();
+                      }
                     },
                   ),
                 );
@@ -98,6 +107,7 @@ class _ArtikelListPageState extends State<ArtikelListPage> {
             context,
             MaterialPageRoute(builder: (_) => const ArtikelFormPage()),
           );
+
           if (created == true) {
             _refresh();
           }
@@ -107,3 +117,4 @@ class _ArtikelListPageState extends State<ArtikelListPage> {
     );
   }
 }
+

@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'dart:typed_data'; 
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -33,8 +33,10 @@ class _ArtikelFormPageState extends State<ArtikelFormPage> {
   @override
   void initState() {
     super.initState();
-    _titleController = TextEditingController(text: widget.artikel?.title ?? '');
-    _descController = TextEditingController(text: widget.artikel?.description ?? '');
+    _titleController =
+        TextEditingController(text: widget.artikel?.title ?? '');
+    _descController =
+        TextEditingController(text: widget.artikel?.description ?? '');
   }
 
   @override
@@ -47,7 +49,6 @@ class _ArtikelFormPageState extends State<ArtikelFormPage> {
   Future<void> _pickImage() async {
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.gallery);
-
     if (picked == null) return;
 
     if (kIsWeb) {
@@ -71,7 +72,7 @@ class _ArtikelFormPageState extends State<ArtikelFormPage> {
 
     try {
       if (isEdit) {
-        await ArtikelService.editArtikel(
+        final ok = await ArtikelService.editArtikel(
           id: widget.artikel!.id,
           title: title,
           description: desc,
@@ -79,6 +80,8 @@ class _ArtikelFormPageState extends State<ArtikelFormPage> {
           imageBytes: _imageBytes,
           imageName: _imageName,
         );
+
+        if (ok && mounted) Navigator.pop(context, true);
       } else {
         await ArtikelService.createArtikel(
           title: title,
@@ -87,14 +90,66 @@ class _ArtikelFormPageState extends State<ArtikelFormPage> {
           imageBytes: _imageBytes,
           imageName: _imageName,
         );
-      }
 
-      if (mounted) Navigator.pop(context, true);
+        if (mounted) Navigator.pop(context, true);
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Gagal menyimpan: $e')),
       );
     }
+  }
+
+  Widget _buildImagePreview() {
+    // 1. New selected image (Web)
+    if (_imageBytes != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.memory(
+          _imageBytes!,
+          height: 160,
+          width: double.infinity,
+          fit: BoxFit.cover,
+        ),
+      );
+    }
+
+    // 2. New selected image (Android/iOS)
+    if (_imageFile != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.file(
+          _imageFile!,
+          height: 160,
+          width: double.infinity,
+          fit: BoxFit.cover,
+        ),
+      );
+    }
+
+    // 3. Old image (EDIT MODE)
+    if (isEdit && widget.artikel!.image != null && widget.artikel!.image!.isNotEmpty) {
+      final url = widget.artikel!.proxied(ArtikelService.baseUrl);
+      if (url == null) return const SizedBox();
+
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.network(
+          url,
+          height: 160,
+          width: double.infinity,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => Container(
+            height: 160,
+            color: Colors.grey.shade300,
+            alignment: Alignment.center,
+            child: const Icon(Icons.image_not_supported),
+          ),
+        ),
+      );
+    }
+
+    return const SizedBox();
   }
 
   @override
@@ -142,41 +197,7 @@ class _ArtikelFormPageState extends State<ArtikelFormPage> {
 
               const SizedBox(height: 12),
 
-              // Preview gambar Web
-              if (_imageBytes != null)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.memory(
-                    _imageBytes!,
-                    height: 160,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                )
-
-              // Preview gambar Android / iOS
-              else if (_imageFile != null)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.file(
-                    _imageFile!,
-                    height: 160,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                )
-
-              // Preview gambar lama (EDIT MODE)
-              else if (isEdit && widget.artikel!.image.isNotEmpty)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    widget.artikel!.proxied(ArtikelService.baseUrl),
-                    height: 160,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                ),
+              _buildImagePreview(),
             ],
           ),
         ),
