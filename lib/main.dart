@@ -1,22 +1,34 @@
 import 'package:flutter/material.dart';
-import 'artikel/screens/artikel_list_page.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:gundex_mobile/menu.dart';
 
 void main() {
-  runApp(const GunDexApp());
+  runApp(const MyApp());
 }
 
-class GunDexApp extends StatelessWidget {
-  const GunDexApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'GunDex Mobile',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-        useMaterial3: true,
+    return Provider(
+      create: (_) {
+        CookieRequest request = CookieRequest();
+        return request;
+      },
+      child: MaterialApp(
+        title: 'GunDex Mobile',
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.green,
+            brightness: Brightness.light,
+          ),
+        ),
+        home: const MyHomePage(),
+        debugShowCheckedModeBanner: false,
       ),
-      home: const ArtikelListPage(),
     );
   }
 }
