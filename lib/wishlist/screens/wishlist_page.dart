@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:gundex_mobile/wishlist/models/wishlist_item.dart';
 import 'package:gundex_mobile/wishlist/widgets/wishlist_card.dart';
 import 'package:gundex_mobile/wishlist/services/wishlist_service.dart';
+import 'package:gundex_mobile/explore_gunung/screens/detail.dart';
+import 'package:gundex_mobile/explore_gunung/models/gunung.dart' as ExploreModel;
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
@@ -23,7 +25,7 @@ class _WishlistPageState extends State<WishlistPage> {
     _fetchWishlist();
   }
 
-  // PEKAN 2: Fetch data dari API Django
+  /// PEKAN 2: Fetch data dari API Django
   Future<void> _fetchWishlist() async {
     setState(() {
       isLoading = true;
@@ -55,7 +57,7 @@ class _WishlistPageState extends State<WishlistPage> {
     await _fetchWishlist();
   }
 
-  // PEKAN 3: Remove item via API (untuk sekarang masih dummy)
+  /// PEKAN 3: Remove item via API
   Future<void> _removeItem(int itemId) async {
     final request = context.read<CookieRequest>();
     
@@ -74,7 +76,7 @@ class _WishlistPageState extends State<WishlistPage> {
       // Close loading dialog
       if (mounted) Navigator.pop(context);
 
-      if (response['status'] == 'success') {
+      if (response['status'] == true) {
         // Update UI - remove item from list
         setState(() {
           wishlistItems.removeWhere((item) => item.id == itemId);
@@ -113,10 +115,28 @@ class _WishlistPageState extends State<WishlistPage> {
     }
   }
 
+  /// Navigate to gunung detail
+  void _viewGunungDetail(WishlistGunung gunung) {
+    // Convert WishlistGunung to Explore Result model
+    final exploreGunung = ExploreModel.Result(
+      id: gunung.id,
+      nama: gunung.nama,
+      ketinggian: gunung.ketinggian,
+      foto: gunung.foto,
+      provinsi: gunung.provinsi,
+      deskripsi: gunung.deskripsi,
+    );
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => GunungDetailScreen(gunung: exploreGunung),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final request = context.watch<CookieRequest>();
-
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -376,6 +396,7 @@ class _WishlistPageState extends State<WishlistPage> {
               return WishlistCard(
                 item: item,
                 onRemove: () => _showRemoveDialog(item),
+                onTap: () => _viewGunungDetail(item.gunung),
               );
             },
           ),
@@ -391,7 +412,7 @@ class _WishlistPageState extends State<WishlistPage> {
         return AlertDialog(
           title: const Text('Hapus dari Wishlist?'),
           content: Text(
-            'Apakah Anda yakin ingin menghapus "${item.gunungNama}" dari wishlist?',
+            'Apakah Anda yakin ingin menghapus "${item.gunung.nama}" dari wishlist?',
           ),
           actions: [
             TextButton(

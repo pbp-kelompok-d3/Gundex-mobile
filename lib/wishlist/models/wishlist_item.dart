@@ -1,37 +1,71 @@
-// To parse this JSON data, do
-//
-//     final wishlistItem = wishlistItemFromJson(jsonString);
-
 import 'dart:convert';
 
-List<WishlistItem> wishlistItemFromJson(String str) => List<WishlistItem>.from(json.decode(str).map((x) => WishlistItem.fromJson(x)));
+/// Parse list of wishlist items from JSON string
+List<WishlistItem> wishlistItemFromJson(String str) {
+  final jsonData = json.decode(str);
+  return List<WishlistItem>.from(jsonData['data'].map((x) => WishlistItem.fromJson(x)));
+}
 
-String wishlistItemToJson(List<WishlistItem> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+String wishlistItemToJson(List<WishlistItem> data) {
+  return json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+}
 
 class WishlistItem {
-    int id;
-    String gunungId;
-    String gunungNama;
-    String addedAt;
+  int id;
+  String addedAt;
+  WishlistGunung gunung;
 
-    WishlistItem({
-        required this.id,
-        required this.gunungId,
-        required this.gunungNama,
-        required this.addedAt,
-    });
+  WishlistItem({
+    required this.id,
+    required this.addedAt,
+    required this.gunung,
+  });
 
-    factory WishlistItem.fromJson(Map<String, dynamic> json) => WishlistItem(
+  factory WishlistItem.fromJson(Map<String, dynamic> json) => WishlistItem(
         id: json["id"],
-        gunungId: json["gunung_id"],
-        gunungNama: json["gunung_nama"],
         addedAt: json["added_at"],
-    );
+        gunung: WishlistGunung.fromJson(json["gunung"]),
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "id": id,
-        "gunung_id": gunungId,
-        "gunung_nama": gunungNama,
         "added_at": addedAt,
-    };
+        "gunung": gunung.toJson(),
+      };
+}
+
+class WishlistGunung {
+  String id;
+  String nama;
+  int ketinggian;
+  String provinsi;
+  String foto;
+  String deskripsi;
+
+  WishlistGunung({
+    required this.id,
+    required this.nama,
+    required this.ketinggian,
+    required this.provinsi,
+    required this.foto,
+    required this.deskripsi,
+  });
+
+  factory WishlistGunung.fromJson(Map<String, dynamic> json) => WishlistGunung(
+        id: json["id"],
+        nama: json["nama"],
+        ketinggian: json["ketinggian"],
+        provinsi: json["provinsi"],
+        foto: json["foto"] ?? '',
+        deskripsi: json["deskripsi"] ?? '',
+      );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "nama": nama,
+        "ketinggian": ketinggian,
+        "provinsi": provinsi,
+        "foto": foto,
+        "deskripsi": deskripsi,
+      };
 }
