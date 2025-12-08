@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gundex_mobile/explore_gunung/screens/explore.dart';
 import 'package:gundex_mobile/menu.dart';
 import 'package:gundex_mobile/userprofile/edit_profile.dart';
+import 'package:gundex_mobile/log_pendakian/screens/lod_pendakian_list.dart';
 import 'package:gundex_mobile/userprofile/login.dart';
 import 'package:gundex_mobile/wishlist/screens/wishlist_page.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -100,10 +101,10 @@ class MenuCard extends StatelessWidget {
               ),
             );
           } else if (item.name == "Log Pendakian") {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Log Pendakian - Coming soon!'),
-                backgroundColor: Color(0xFFCAD593),
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const LogPendakianListPage(),
               ),
             );
           }

@@ -1,0 +1,4 @@
+enum CardActionMode {
+  none,
+  edit,
+}
