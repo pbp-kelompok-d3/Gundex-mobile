@@ -4,12 +4,14 @@ import 'package:gundex_mobile/menu.dart';
 import 'package:gundex_mobile/userprofile/edit_profile.dart';
 import 'package:gundex_mobile/userprofile/login.dart';
 import 'package:gundex_mobile/userprofile/register.dart';
+import 'package:gundex_mobile/wishlist/screens/wishlist_page.dart'; // IMPORT WISHLIST
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
 
+  // Helper function to show login required dialog
   void _showLoginRequired(BuildContext context, String feature) {
     showDialog(
       context: context,
@@ -129,7 +131,6 @@ class LeftDrawer extends StatelessWidget {
             title: const Text('Artikel'),
             onTap: () {
               Navigator.pop(context);
-              // TODO: Navigate to Artikel page when implemented
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Artikel - Coming soon!'),
@@ -146,7 +147,6 @@ class LeftDrawer extends StatelessWidget {
                 _showLoginRequired(context, 'Log Pendakian');
               } else {
                 Navigator.pop(context);
-                // TODO: Navigate to Log Pendakian page when implemented
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Log Pendakian - Coming soon!'),
@@ -163,19 +163,19 @@ class LeftDrawer extends StatelessWidget {
               if (!request.loggedIn) {
                 _showLoginRequired(context, 'Wishlist');
               } else {
-                Navigator.pop(context);
-                // TODO: Navigate to Wishlist page when implemented
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Wishlist - Coming soon!'),
-                    backgroundColor: Color(0xFF87A330),
+                Navigator.pop(context); // Close drawer
+                // NAVIGATE TO WISHLIST
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const WishlistPage(),
                   ),
                 );
               }
             },
           ),
           const Divider(),
-          
+
           // Conditional Profile/Login button
           if (request.loggedIn)
             ListTile(
@@ -203,7 +203,7 @@ class LeftDrawer extends StatelessWidget {
                 );
               },
             ),
-          
+
           // Conditional Logout/Register button
           if (request.loggedIn)
             ListTile(

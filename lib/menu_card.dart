@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gundex_mobile/explore_gunung/screens/explore.dart';
-import 'package:gundex_mobile/log_pendakian/screens/lod_pendakian_list.dart';
 import 'package:gundex_mobile/menu.dart';
 import 'package:gundex_mobile/userprofile/edit_profile.dart';
+import 'package:gundex_mobile/log_pendakian/screens/lod_pendakian_list.dart';
 import 'package:gundex_mobile/userprofile/login.dart';
+import 'package:gundex_mobile/wishlist/screens/wishlist_page.dart'; // IMPORT WISHLIST
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
@@ -78,24 +79,28 @@ class MenuCard extends StatelessWidget {
               ),
             );
           } else if (item.name == "Explore Gunung") {
-            // TODO: Navigate to Explore Gunung page
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => const ExploreGunungScreen(),
               ),
             );
+          } else if (item.name == "Wishlist") {
+            // NAVIGATE TO WISHLIST
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const WishlistPage(),
+              ),
+            );
           } else if (item.name == "Artikel") {
-            // TODO: Navigate to Artikel page
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Artikel - Coming soon!'),
                 backgroundColor: Color(0xFFA1C349),
               ),
             );
-          }
-          // Log Pendakian and Wishlist will be handled by requiresLogin check above
-          else if (item.name == "Log Pendakian") {
+          } else if (item.name == "Log Pendakian") {
             Navigator.push(
               context,
               MaterialPageRoute(
