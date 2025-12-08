@@ -3,38 +3,43 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'dart:convert';
 
 class WishlistService {
+  // Base URL - ganti sesuai environment
   static const String baseUrl = 'http://localhost:8000';
-  
+
   // Fetch wishlist user yang sedang login
+  // Returns List<WishlistItem> with full gunung data
   static Future<List<WishlistItem>> fetchWishlist(CookieRequest request) async {
     try {
-      final response = await request.get('$baseUrl/wishlist/json/');
-      
-      // Convert response to List<WishlistItem>
-      List<WishlistItem> wishlistItems = [];
-      for (var item in response) {
-        wishlistItems.add(WishlistItem.fromJson(item));
+      final response = await request.get('$baseUrl/wishlist/flutter/json/');
+
+      if (response['status'] == true) {
+        List<WishlistItem> wishlistItems = [];
+        for (var item in response['data']) {
+          wishlistItems.add(WishlistItem.fromJson(item));
+        }
+        return wishlistItems;
+      } else {
+        throw Exception(response['message'] ?? 'Failed to load wishlist');
       }
-      
-      return wishlistItems;
     } catch (e) {
       throw Exception('Failed to load wishlist: $e');
     }
   }
 
   // Add gunung to wishlist
+  // Returns Map with status and message
   static Future<Map<String, dynamic>> addToWishlist(
     CookieRequest request,
     String gunungId,
   ) async {
     try {
       final response = await request.postJson(
-        '$baseUrl/wishlist/add/',
+        '$baseUrl/wishlist/flutter/add/',
         jsonEncode({
           'gunung_id': gunungId,
         }),
       );
-      
+
       return response;
     } catch (e) {
       throw Exception('Failed to add to wishlist: $e');
@@ -42,19 +47,38 @@ class WishlistService {
   }
 
   // Remove item from wishlist
+  // Returns Map with status and message
   static Future<Map<String, dynamic>> removeFromWishlist(
     CookieRequest request,
     int itemId,
   ) async {
     try {
       final response = await request.post(
-        '$baseUrl/wishlist/remove/$itemId/',
+        '$baseUrl/wishlist/flutter/remove/$itemId/',
         {},
       );
-      
+
       return response;
     } catch (e) {
       throw Exception('Failed to remove from wishlist: $e');
+    }
+  }
+
+  // Check if a gunung is in user's wishlist
+  // Returns bool
+  static Future<bool> checkWishlistStatus(
+    CookieRequest request,
+    String gunungId,
+  ) async {
+    try {
+      final response = await request.get(
+        '$baseUrl/wishlist/flutter/check/$gunungId/',
+      );
+
+      return response['in_wishlist'] ?? false;
+    } catch (e) {
+      // If error, assume not in wishlist
+      return false;
     }
   }
 }
