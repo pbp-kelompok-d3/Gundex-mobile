@@ -3,7 +3,7 @@ import 'package:gundex_mobile/explore_gunung/screens/explore.dart';
 import 'package:gundex_mobile/menu.dart';
 import 'package:gundex_mobile/userprofile/edit_profile.dart';
 import 'package:gundex_mobile/userprofile/login.dart';
-import 'package:gundex_mobile/wishlist/screens/wishlist_page.dart'; // IMPORT WISHLIST
+import 'package:gundex_mobile/wishlist/screens/wishlist_page.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
@@ -85,7 +85,7 @@ class MenuCard extends StatelessWidget {
               ),
             );
           } else if (item.name == "Wishlist") {
-            // NAVIGATE TO WISHLIST
+            // Navigate to Wishlist
             Navigator.push(
               context,
               MaterialPageRoute(

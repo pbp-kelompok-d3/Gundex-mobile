@@ -25,7 +25,6 @@ class _WishlistPageState extends State<WishlistPage> {
     _fetchWishlist();
   }
 
-  /// PEKAN 2: Fetch data dari API Django
   Future<void> _fetchWishlist() async {
     setState(() {
       isLoading = true;
@@ -57,7 +56,6 @@ class _WishlistPageState extends State<WishlistPage> {
     await _fetchWishlist();
   }
 
-  /// PEKAN 3: Remove item via API
   Future<void> _removeItem(int itemId) async {
     final request = context.read<CookieRequest>();
     
@@ -115,7 +113,7 @@ class _WishlistPageState extends State<WishlistPage> {
     }
   }
 
-  /// Navigate to gunung detail
+  // Navigate to gunung detail
   void _viewGunungDetail(WishlistGunung gunung) {
     // Convert WishlistGunung to Explore Result model
     final exploreGunung = ExploreModel.Result(
