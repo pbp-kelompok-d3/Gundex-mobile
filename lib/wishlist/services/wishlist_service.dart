@@ -3,7 +3,6 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'dart:convert';
 
 class WishlistService {
-  // Base URL - ganti sesuai environment
   static const String baseUrl = 'http://localhost:8000';
 
   // Fetch wishlist user yang sedang login

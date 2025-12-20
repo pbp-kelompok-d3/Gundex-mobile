@@ -3,7 +3,7 @@ import 'package:gundex_mobile/wishlist/models/wishlist_item.dart';
 import 'package:gundex_mobile/wishlist/widgets/wishlist_card.dart';
 import 'package:gundex_mobile/wishlist/services/wishlist_service.dart';
 import 'package:gundex_mobile/explore_gunung/screens/detail.dart';
-import 'package:gundex_mobile/explore_gunung/screens/explore.dart'; // TAMBAH INI
+import 'package:gundex_mobile/explore_gunung/screens/explore.dart';
 import 'package:gundex_mobile/explore_gunung/models/gunung.dart' as ExploreModel;
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -393,7 +393,7 @@ class _WishlistPageState extends State<WishlistPage> {
               return WishlistCard(
                 item: item,
                 onRemove: () => _showRemoveDialog(item),
-                onTap: () => _viewGunungDetail(item.gunung), // FIXED: Pass function
+                onTap: () => _viewGunungDetail(item.gunung),
               );
             },
           ),
