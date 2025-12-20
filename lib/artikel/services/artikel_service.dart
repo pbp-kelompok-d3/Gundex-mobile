@@ -121,4 +121,44 @@ class ArtikelService {
 
     if (res.statusCode != 200) throw Exception(res.body);
   }
+
+  // ========================
+  // ARTIKEL HOT (latest 5)
+  // ========================
+  static Future<List<Artikel>> fetchLatest() async {
+    final res = await http.get(_uri('/artikel/api/latest/'));
+    if (res.statusCode != 200) throw Exception("Gagal memuat artikel hot");
+    final List data = jsonDecode(res.body);
+    return data.map((e) => Artikel.fromJson(e)).toList();
+  }
+
+  // ========================
+  // REKOMENDASI
+  // ========================
+  static Future<List<Artikel>> fetchRecommendations() async {
+    final res = await http.get(_uri('/artikel/api/recommended/'));
+    if (res.statusCode != 200) throw Exception("Gagal memuat rekomendasi");
+    final List data = jsonDecode(res.body);
+    return data.map((e) => Artikel.fromJson(e)).toList();
+  }
+
+  // ========================
+  // ARTIKEL TERPOPULER (views)
+  // ========================
+  static Future<List<Artikel>> fetchPopular() async {
+    final res = await http.get(_uri('/artikel/api/popular/'));
+    if (res.statusCode != 200) throw Exception("Gagal memuat populer");
+    final List data = jsonDecode(res.body);
+    return data.map((e) => Artikel.fromJson(e)).toList();
+  }
+
+  // ========================
+  // ARTIKEL TERHANGAT (likes)
+  // ========================
+  static Future<List<Artikel>> fetchHottest() async {
+    final res = await http.get(_uri('/artikel/api/hottest/'));
+    if (res.statusCode != 200) throw Exception("Gagal memuat terhangat");
+    final List data = jsonDecode(res.body);
+    return data.map((e) => Artikel.fromJson(e)).toList();
+  }
 }

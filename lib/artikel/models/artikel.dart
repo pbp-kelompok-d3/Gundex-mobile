@@ -30,10 +30,10 @@ class Artikel {
   }
 
   /// Menghasilkan URL proxy agar gambar local Django bisa dibuka Flutter Web
-  String? proxied(String baseUrl) {
-    if (image == null || image!.trim().isEmpty) return null;
-
+  String proxied(String baseUrl) {
+    if (image == null || image!.isEmpty) return "";
     final encoded = Uri.encodeFull(image!);
     return "$baseUrl/artikel/proxy/?url=$encoded";
   }
+
 }
