@@ -1,31 +1,207 @@
 import 'package:flutter/material.dart';
-import 'package:gundex_mobile/explore_gunung/models/gunung.dart'; // Pastikan import model Result kamu
+import 'package:gundex_mobile/explore_gunung/models/gunung.dart';
+import 'package:gundex_mobile/wishlist/services/wishlist_service.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
-class GunungDetailScreen extends StatelessWidget {
+class GunungDetailScreen extends StatefulWidget {
   final Result gunung;
 
   const GunungDetailScreen({super.key, required this.gunung});
 
   @override
+  State<GunungDetailScreen> createState() => _GunungDetailScreenState();
+}
+
+class _GunungDetailScreenState extends State<GunungDetailScreen> {
+  bool isInWishlist = false;
+  bool isLoadingWishlist = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkWishlistStatus();
+  }
+
+  Future<void> _checkWishlistStatus() async {
+    final request = context.read<CookieRequest>();
+    if (!request.loggedIn) return;
+
+    try {
+      final status = await WishlistService.checkWishlistStatus(
+        request,
+        widget.gunung.id,
+      );
+      if (mounted) {
+        setState(() {
+          isInWishlist = status;
+        });
+      }
+    } catch (e) {
+      // Silently fail
+    }
+  }
+
+  Future<void> _toggleWishlist() async {
+    final request = context.read<CookieRequest>();
+
+    if (!request.loggedIn) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Silakan login terlebih dahulu'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
+    }
+
+    setState(() {
+      isLoadingWishlist = true;
+    });
+
+    try {
+      if (isInWishlist) {
+        // REMOVE from wishlist
+        final items = await WishlistService.fetchWishlist(request);
+        final item = items.firstWhere(
+          (item) => item.gunung.id == widget.gunung.id,
+          orElse: () => throw Exception('Item not found'),
+        );
+
+        final response = await WishlistService.removeFromWishlist(
+          request,
+          item.id,
+        );
+
+        if (mounted) {
+          if (response['status'] == true) {
+            setState(() {
+              isInWishlist = false;
+            });
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(response['message'] ?? 'Berhasil dihapus'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(response['message'] ?? 'Gagal menghapus'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      } else {
+        // ADD to wishlist
+        final response = await WishlistService.addToWishlist(
+          request,
+          widget.gunung.id,
+        );
+
+        if (mounted) {
+          if (response['status'] == true) {
+            setState(() {
+              isInWishlist = true;
+            });
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(response['message'] ?? 'Berhasil ditambahkan'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          } else if (response['already_exists'] == true) {
+            setState(() {
+              isInWishlist = true;
+            });
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(response['message']),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(response['message'] ?? 'Gagal menambahkan'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoadingWishlist = false;
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(gunung.nama),
-        backgroundColor: const Color.fromARGB(255, 5, 100, 8), // Hijau sesuai tema
+        title: Text(widget.gunung.nama),
+        backgroundColor: const Color.fromARGB(255, 5, 100, 8),
         foregroundColor: Colors.white,
+        actions: [
+          // WISHLIST BUTTON IN APPBAR
+          if (request.loggedIn)
+            isLoadingWishlist
+                ? const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    ),
+                  )
+                : IconButton(
+                    icon: Icon(
+                      isInWishlist ? Icons.favorite : Icons.favorite_border,
+                      color: isInWishlist ? Colors.red : Colors.white,
+                    ),
+                    onPressed: _toggleWishlist,
+                    tooltip: isInWishlist
+                        ? 'Hapus dari wishlist'
+                        : 'Tambah ke wishlist',
+                  ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. Image Header
+            // Image Header
             Stack(
               children: [
                 SizedBox(
                   height: 300,
                   width: double.infinity,
                   child: Image.network(
-                    'http://localhost:8000/proxy-image/?url=${Uri.encodeComponent(gunung.foto)}',
+                    'http://localhost:8000/proxy-image/?url=${Uri.encodeComponent(widget.gunung.foto)}',
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => Container(
                       height: 300,
@@ -40,7 +216,6 @@ class GunungDetailScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Dekorasi gradasi hitam di bawah gambar agar teks terlihat jelas jika ingin ditaruh di atas gambar
                 Positioned(
                   bottom: 0,
                   left: 0,
@@ -61,17 +236,16 @@ class GunungDetailScreen extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 2. Badges (Provinsi & Ketinggian)
+                  // Badges
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Badge Provinsi (Mirip Category)
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12.0, vertical: 6.0),
@@ -81,7 +255,7 @@ class GunungDetailScreen extends StatelessWidget {
                           border: Border.all(color: Colors.indigo.shade200),
                         ),
                         child: Text(
-                          gunung.provinsi.toUpperCase(),
+                          widget.gunung.provinsi.toUpperCase(),
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
@@ -90,8 +264,6 @@ class GunungDetailScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      
-                      // Badge Ketinggian (Mirip Featured)
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12.0, vertical: 6.0),
@@ -102,10 +274,11 @@ class GunungDetailScreen extends StatelessWidget {
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.bar_chart, size: 14, color: Colors.orange.shade800),
+                            Icon(Icons.bar_chart,
+                                size: 14, color: Colors.orange.shade800),
                             const SizedBox(width: 4),
                             Text(
-                              '${gunung.ketinggian} mdpl',
+                              '${widget.gunung.ketinggian} mdpl',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12,
@@ -115,13 +288,13 @@ class GunungDetailScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                    ]
+                    ],
                   ),
                   const SizedBox(height: 16),
-                
-                  // 3. Nama Gunung (Title)
+
+                  // Nama Gunung
                   Text(
-                    gunung.nama,
+                    widget.gunung.nama,
                     style: const TextStyle(
                       fontSize: 28.0,
                       fontWeight: FontWeight.bold,
@@ -130,11 +303,10 @@ class GunungDetailScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
 
-                  // Divider (Pemisah)
                   const Divider(color: Colors.grey),
                   const SizedBox(height: 8),
 
-                  // 4. Label Deskripsi
+                  // Label Deskripsi
                   const Text(
                     "Deskripsi",
                     style: TextStyle(
@@ -145,20 +317,20 @@ class GunungDetailScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
 
-                  // 5. Isi Deskripsi
+                  // Isi Deskripsi
                   Text(
-                    gunung.deskripsi,
+                    widget.gunung.deskripsi,
                     style: const TextStyle(
                       fontSize: 16.0,
-                      height: 1.6, // Line height agar enak dibaca
+                      height: 1.6,
                       color: Colors.black87,
                     ),
                     textAlign: TextAlign.justify,
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
-                  // Tombol Kembali (Opsional)
+
+                  // Tombol Kembali
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(

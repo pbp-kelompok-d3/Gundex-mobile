@@ -3,6 +3,7 @@ import 'package:gundex_mobile/wishlist/models/wishlist_item.dart';
 import 'package:gundex_mobile/wishlist/widgets/wishlist_card.dart';
 import 'package:gundex_mobile/wishlist/services/wishlist_service.dart';
 import 'package:gundex_mobile/explore_gunung/screens/detail.dart';
+import 'package:gundex_mobile/explore_gunung/screens/explore.dart'; // TAMBAH INI
 import 'package:gundex_mobile/explore_gunung/models/gunung.dart' as ExploreModel;
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -60,7 +61,6 @@ class _WishlistPageState extends State<WishlistPage> {
     final request = context.read<CookieRequest>();
     
     try {
-      // Show loading
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -71,11 +71,9 @@ class _WishlistPageState extends State<WishlistPage> {
 
       final response = await WishlistService.removeFromWishlist(request, itemId);
       
-      // Close loading dialog
       if (mounted) Navigator.pop(context);
 
       if (response['status'] == true) {
-        // Update UI - remove item from list
         setState(() {
           wishlistItems.removeWhere((item) => item.id == itemId);
         });
@@ -99,7 +97,6 @@ class _WishlistPageState extends State<WishlistPage> {
         }
       }
     } catch (e) {
-      // Close loading dialog if still open
       if (mounted) Navigator.pop(context);
       
       if (mounted) {
@@ -113,9 +110,7 @@ class _WishlistPageState extends State<WishlistPage> {
     }
   }
 
-  // Navigate to gunung detail
   void _viewGunungDetail(WishlistGunung gunung) {
-    // Convert WishlistGunung to Explore Result model
     final exploreGunung = ExploreModel.Result(
       id: gunung.id,
       nama: gunung.nama,
@@ -310,7 +305,13 @@ class _WishlistPageState extends State<WishlistPage> {
             const SizedBox(height: 32),
             ElevatedButton.icon(
               onPressed: () {
-                Navigator.pop(context);
+                // FIXED: Navigate to ExploreGunungScreen, not pop
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ExploreGunungScreen(),
+                  ),
+                );
               },
               icon: const Icon(Icons.terrain),
               label: const Text('Explore Gunung'),
@@ -335,7 +336,6 @@ class _WishlistPageState extends State<WishlistPage> {
   Widget _buildWishlistContent() {
     return Column(
       children: [
-        // Header Info
         Container(
           width: double.infinity,
           margin: const EdgeInsets.all(16),
@@ -384,7 +384,6 @@ class _WishlistPageState extends State<WishlistPage> {
           ),
         ),
 
-        // List Wishlist Items
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.only(bottom: 16),
@@ -394,7 +393,7 @@ class _WishlistPageState extends State<WishlistPage> {
               return WishlistCard(
                 item: item,
                 onRemove: () => _showRemoveDialog(item),
-                onTap: () => _viewGunungDetail(item.gunung),
+                onTap: () => _viewGunungDetail(item.gunung), // FIXED: Pass function
               );
             },
           ),

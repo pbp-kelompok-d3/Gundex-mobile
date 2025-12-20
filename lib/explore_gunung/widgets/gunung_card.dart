@@ -20,7 +20,7 @@ class GunungCard extends StatefulWidget {
     required this.ketinggian,
     required this.lokasi,
     required this.imageUrl,
-    required this.gunungId, 
+    required this.gunungId,
     this.isAdmin = false,
     required this.onTap,
     required this.onEdit,
@@ -34,6 +34,7 @@ class GunungCard extends StatefulWidget {
 class _GunungCardState extends State<GunungCard> {
   bool isInWishlist = false;
   bool isLoadingWishlist = false;
+  int? wishlistItemId; // Store wishlist item ID for removal
 
   @override
   void initState() {
@@ -56,7 +57,7 @@ class _GunungCardState extends State<GunungCard> {
         });
       }
     } catch (e) {
-      // Silently fail - user can still add manually
+      // Silently fail
     }
   }
 
@@ -81,17 +82,42 @@ class _GunungCardState extends State<GunungCard> {
 
     try {
       if (isInWishlist) {
-        // Not implemented - user can remove from wishlist page
+        // REMOVE from wishlist
+        // First, fetch wishlist to get item ID
+        final items = await WishlistService.fetchWishlist(request);
+        final item = items.firstWhere(
+          (item) => item.gunung.id == widget.gunungId,
+          orElse: () => throw Exception('Item not found'),
+        );
+
+        final response = await WishlistService.removeFromWishlist(
+          request,
+          item.id,
+        );
+
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Hapus dari halaman Wishlist'),
-              backgroundColor: Colors.blue,
-            ),
-          );
+          if (response['status'] == true) {
+            setState(() {
+              isInWishlist = false;
+            });
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(response['message'] ?? 'Berhasil dihapus'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(response['message'] ?? 'Gagal menghapus'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
         }
       } else {
-        // Add to wishlist
+        // ADD to wishlist
         final response = await WishlistService.addToWishlist(
           request,
           widget.gunungId,
