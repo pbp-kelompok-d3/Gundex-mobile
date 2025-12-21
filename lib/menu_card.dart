@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gundex_mobile/explore_gunung/screens/explore.dart';
+import 'package:gundex_mobile/artikel/screens/artikel_list_page.dart';
 import 'package:gundex_mobile/menu.dart';
 import 'package:gundex_mobile/userprofile/edit_profile.dart';
 import 'package:gundex_mobile/log_pendakian/screens/lod_pendakian_list.dart';
@@ -94,10 +95,10 @@ class MenuCard extends StatelessWidget {
               ),
             );
           } else if (item.name == "Artikel") {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Artikel - Coming soon!'),
-                backgroundColor: Color(0xFFA1C349),
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ArtikelListPage(),
               ),
             );
           } else if (item.name == "Log Pendakian") {
