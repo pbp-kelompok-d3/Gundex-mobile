@@ -120,8 +120,14 @@ class _ArtikelListPageState extends State<ArtikelListPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("GunDex — Artikel Pendakian"),
-        backgroundColor: Colors.green,
+        title: const Text(
+          "Artikel Gundex",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: const Color(0xFF243010),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
       ),
       body: RefreshIndicator(
         onRefresh: () => _refreshAll(request),

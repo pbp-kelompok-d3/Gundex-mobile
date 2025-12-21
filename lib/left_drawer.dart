@@ -7,6 +7,8 @@ import 'package:gundex_mobile/userprofile/register.dart';
 import 'package:gundex_mobile/wishlist/screens/wishlist_page.dart'; 
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:gundex_mobile/log_pendakian/screens/lod_pendakian_list.dart';
+import 'artikel/screens/artikel_list_page.dart';
 
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
@@ -131,12 +133,12 @@ class LeftDrawer extends StatelessWidget {
             title: const Text('Artikel'),
             onTap: () {
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Artikel - Coming soon!'),
-                  backgroundColor: Color(0xFF87A330),
-                ),
-              );
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ArtikelListPage(),
+                  ),
+                );
             },
           ),
           ListTile(
@@ -147,10 +149,10 @@ class LeftDrawer extends StatelessWidget {
                 _showLoginRequired(context, 'Log Pendakian');
               } else {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Log Pendakian - Coming soon!'),
-                    backgroundColor: Color(0xFF87A330),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LogPendakianListPage(),
                   ),
                 );
               }
