@@ -186,7 +186,7 @@ class _GunungCardState extends State<GunungCard> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
 
-    final imageUrl = 'http://localhost:8000/proxy-image/?url=${Uri.encodeComponent(widget.imageUrl)}';
+    final imageUrl = 'https://rasyad-zulham-gundex.pbp.cs.ui.ac.id/proxy-image/?url=${Uri.encodeComponent(widget.imageUrl)}';
 
     return GestureDetector(
       onTapDown: (_) => _controller.forward(),

@@ -142,7 +142,7 @@ class _LoginPageState extends State<LoginPage> {
                                   }
 
                                   final response = await request.login(
-                                    "http://localhost:8000/userprofile/flutter/login/",
+                                    "https://rasyad-zulham-gundex.pbp.cs.ui.ac.id/userprofile/flutter/login/",
                                     {
                                       'username': username,
                                       'password': password,

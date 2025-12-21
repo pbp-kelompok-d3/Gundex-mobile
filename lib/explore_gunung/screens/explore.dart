@@ -16,7 +16,7 @@ class ExploreGunungScreen extends StatefulWidget {
 }
 
 class _ExploreGunungScreenState extends State<ExploreGunungScreen> {
-  final String baseUrl = "http://localhost:8000";
+  final String baseUrl = "https://rasyad-zulham-gundex.pbp.cs.ui.ac.id/";
 
   List<Result> _gunungList = [];
   bool _isLoading = true;

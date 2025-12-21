@@ -245,7 +245,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                       setState(() => _isLoading = true);
 
                                       final response = await request.postJson(
-                                        "http://localhost:8000/userprofile/flutter/register/",
+                                        "https://rasyad-zulham-gundex.pbp.cs.ui.ac.id/userprofile/flutter/register/",
                                         jsonEncode({
                                           "username": _usernameController.text.trim(),
                                           "email": _emailController.text.trim(),

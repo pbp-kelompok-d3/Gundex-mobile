@@ -16,7 +16,7 @@ class LogPendakianListPage extends StatefulWidget {
 }
 
 class _LogPendakianListPageState extends State<LogPendakianListPage> {
-  static const String _baseUrl = "http://localhost:8000";
+  static const String _baseUrl = "https://rasyad-zulham-gundex.pbp.cs.ui.ac.id/";
 
   late Future<void> _initialLoad;
   final List<LogPendakian> _logs = [];

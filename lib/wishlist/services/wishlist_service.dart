@@ -3,7 +3,7 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'dart:convert';
 
 class WishlistService {
-  static const String baseUrl = 'http://localhost:8000';
+  static const String baseUrl = 'https://rasyad-zulham-gundex.pbp.cs.ui.ac.id/';
 
   // Fetch wishlist user yang sedang login
   // Returns List<WishlistItem> with full gunung data

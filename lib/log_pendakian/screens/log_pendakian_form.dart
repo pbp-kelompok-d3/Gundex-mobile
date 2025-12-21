@@ -19,7 +19,7 @@ class LogPendakianFormPage extends StatefulWidget {
 class _LogPendakianFormPageState extends State<LogPendakianFormPage> {
   final _formKey = GlobalKey<FormState>();
 
-  static const String _baseUrl = "http://localhost:8000";
+  static const String _baseUrl = "https://rasyad-zulham-gundex.pbp.cs.ui.ac.id/";
 
   late final TextEditingController _gunungController;
   late final TextEditingController _startController;

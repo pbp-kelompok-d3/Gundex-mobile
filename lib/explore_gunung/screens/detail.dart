@@ -201,7 +201,7 @@ class _GunungDetailScreenState extends State<GunungDetailScreen> {
                   height: 300,
                   width: double.infinity,
                   child: Image.network(
-                    'http://localhost:8000/proxy-image/?url=${Uri.encodeComponent(widget.gunung.foto)}',
+                    'https://rasyad-zulham-gundex.pbp.cs.ui.ac.id/proxy-image/?url=${Uri.encodeComponent(widget.gunung.foto)}',
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => Container(
                       height: 300,

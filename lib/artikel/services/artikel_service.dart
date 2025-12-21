@@ -3,7 +3,7 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import '../models/artikel.dart';
 
 class ArtikelService {
-  static const String baseUrl = 'http://localhost:8000';
+  static const String baseUrl = 'https://rasyad-zulham-gundex.pbp.cs.ui.ac.id/';
 
   // ======================
   // GET LIST ARTIKEL (PUBLIC)

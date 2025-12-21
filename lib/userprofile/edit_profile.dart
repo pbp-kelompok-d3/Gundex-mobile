@@ -31,7 +31,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final request = context.read<CookieRequest>();
     
     try {
-      final response = await request.get('http://localhost:8000/userprofile/flutter/profile/');
+      final response = await request.get('https://rasyad-zulham-gundex.pbp.cs.ui.ac.id/userprofile/flutter/profile/');
       
       if (response['status'] == true) {
         setState(() {
@@ -75,7 +75,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     try {
 
       final response = await request.postJson(
-        'http://localhost:8000/userprofile/flutter/update-profile/',
+        'https://rasyad-zulham-gundex.pbp.cs.ui.ac.id/userprofile/flutter/update-profile/',
         jsonEncode({
           'first_name': _firstNameController.text.trim(),
           'last_name': _lastNameController.text.trim(),

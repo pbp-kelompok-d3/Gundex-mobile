@@ -21,7 +21,7 @@ class _EditGunungScreenState extends State<EditGunungScreen> {
   late TextEditingController _deskripsiController;
   late TextEditingController _fotoController;
 
-  final String baseUrl = "http://localhost:8000";
+  final String baseUrl = "https://rasyad-zulham-gundex.pbp.cs.ui.ac.id/";
   final Color _primaryColor = const Color(0xFF243010);
   
   bool _isSaving = false;
@@ -308,7 +308,7 @@ class _EditGunungScreenState extends State<EditGunungScreen> {
               },
               child: _fotoController.text.isNotEmpty
                   ? Image.network(
-                      'http://localhost:8000/proxy-image/?url=${Uri.encodeComponent(_fotoController.text)}',
+                      'https://rasyad-zulham-gundex.pbp.cs.ui.ac.id/proxy-image/?url=${Uri.encodeComponent(_fotoController.text)}',
                       key: ValueKey<String>(_fotoController.text), 
                       fit: BoxFit.cover,
                       width: double.infinity,

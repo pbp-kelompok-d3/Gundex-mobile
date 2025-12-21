@@ -216,7 +216,7 @@ class LeftDrawer extends StatelessWidget {
               ),
               onTap: () async {
                 final response = await request.logout(
-                  "http://localhost:8000/userprofile/flutter/logout/",
+                  "https://rasyad-zulham-gundex.pbp.cs.ui.ac.id/userprofile/flutter/logout/",
                 );
 
                 if (context.mounted) {
