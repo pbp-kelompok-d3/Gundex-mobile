@@ -34,7 +34,7 @@ class WishlistCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
                 child: item.gunung.foto.isNotEmpty
                     ? Image.network(
-                        'http://localhost:8000/proxy-image/?url=${Uri.encodeComponent(item.gunung.foto)}',
+                        'https://rasyad-zulham-gundex.pbp.cs.ui.ac.id/proxy-image/?url=${Uri.encodeComponent(item.gunung.foto)}',
                         width: 80,
                         height: 80,
                         fit: BoxFit.cover,
