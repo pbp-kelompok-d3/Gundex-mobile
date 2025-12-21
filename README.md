@@ -1,5 +1,7 @@
 # 🏔️ Hello everyone, We are GunDex!
 
+Download aplikasi versi terbaru: [Download APK](https://app.bitrise.io/app/e7ca183a-90c4-420a-8f3a-dbcf49333635/installable-artifacts/4c0621c6190aa7fb/public-install-page/35bd21d740edd5f4be643957bac24416)
+
 ## 👥 Anggota Kelompok D03
 - M. Adella Fathir Supriadi (2406495640)
 - Rasyad Zulham Rabani (2406348540)
