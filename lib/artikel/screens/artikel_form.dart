@@ -1,12 +1,9 @@
-import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
 
 import '../models/artikel.dart';
 import '../services/artikel_service.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 class ArtikelFormPage extends StatefulWidget {
   final Artikel? artikel;
@@ -21,12 +18,6 @@ class _ArtikelFormPageState extends State<ArtikelFormPage> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
   late TextEditingController _descController;
-
-  File? _imageFile;
-
-  // Untuk Web
-  Uint8List? _imageBytes;
-  String? _imageName;
 
   bool get isEdit => widget.artikel != null;
 
@@ -46,25 +37,7 @@ class _ArtikelFormPageState extends State<ArtikelFormPage> {
     super.dispose();
   }
 
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery);
-    if (picked == null) return;
-
-    if (kIsWeb) {
-      final bytes = await picked.readAsBytes();
-      setState(() {
-        _imageBytes = bytes;
-        _imageName = picked.name;
-      });
-    } else {
-      setState(() {
-        _imageFile = File(picked.path);
-      });
-    }
-  }
-
-  Future<void> _submit() async {
+  Future<void> _submit(CookieRequest request) async {
     if (!_formKey.currentState!.validate()) return;
 
     final title = _titleController.text.trim();
@@ -72,93 +45,53 @@ class _ArtikelFormPageState extends State<ArtikelFormPage> {
 
     try {
       if (isEdit) {
-        final ok = await ArtikelService.editArtikel(
-          id: widget.artikel!.id,
-          title: title,
-          description: desc,
-          imageFile: _imageFile,
-          imageBytes: _imageBytes,
-          imageName: _imageName,
+        // ======================
+        // EDIT ARTIKEL (POST)
+        // ======================
+        final response = await request.post(
+          '${ArtikelService.baseUrl}/artikel/api/flutter/${widget.artikel!.id}/edit/',
+          {
+            'title': title,
+            'description': desc,
+          },
         );
 
-        if (ok && mounted) Navigator.pop(context, true);
+        if (response is Map && response['error'] == 'LOGIN_REQUIRED') {
+          throw Exception('LOGIN_REQUIRED');
+        }
       } else {
-        await ArtikelService.createArtikel(
-          title: title,
-          description: desc,
-          imageFile: _imageFile,
-          imageBytes: _imageBytes,
-          imageName: _imageName,
+        // ======================
+        // CREATE ARTIKEL (POST)
+        // ======================
+        final response = await request.post(
+          '${ArtikelService.baseUrl}/artikel/api/flutter/create/',
+          {
+            'title': title,
+            'description': desc,
+          },
         );
 
-        if (mounted) Navigator.pop(context, true);
+        if (response is Map && response['error'] == 'LOGIN_REQUIRED') {
+          throw Exception('LOGIN_REQUIRED');
+        }
       }
+
+      if (mounted) Navigator.pop(context, true);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal menyimpan: $e')),
+        SnackBar(content: Text('Gagal menyimpan artikel: $e')),
       );
     }
-  }
-
-  Widget _buildImagePreview() {
-    // 1. New selected image (Web)
-    if (_imageBytes != null) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Image.memory(
-          _imageBytes!,
-          height: 160,
-          width: double.infinity,
-          fit: BoxFit.cover,
-        ),
-      );
-    }
-
-    // 2. New selected image (Android/iOS)
-    if (_imageFile != null) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Image.file(
-          _imageFile!,
-          height: 160,
-          width: double.infinity,
-          fit: BoxFit.cover,
-        ),
-      );
-    }
-
-    // 3. Old image (EDIT MODE)
-    if (isEdit && widget.artikel!.image != null && widget.artikel!.image!.isNotEmpty) {
-      final url = widget.artikel!.proxied(ArtikelService.baseUrl);
-      if (url == null) return const SizedBox();
-
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Image.network(
-          url,
-          height: 160,
-          width: double.infinity,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => Container(
-            height: 160,
-            color: Colors.grey.shade300,
-            alignment: Alignment.center,
-            child: const Icon(Icons.image_not_supported),
-          ),
-        ),
-      );
-    }
-
-    return const SizedBox();
   }
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
+
     return Scaffold(
       appBar: AppBar(
         title: Text(isEdit ? 'Edit Artikel' : 'Buat Artikel'),
       ),
-
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -167,12 +100,12 @@ class _ArtikelFormPageState extends State<ArtikelFormPage> {
             children: [
               TextFormField(
                 controller: _titleController,
-                decoration: const InputDecoration(labelText: 'Judul Artikel'),
+                decoration:
+                    const InputDecoration(labelText: 'Judul Artikel'),
                 validator: (value) =>
                     value!.trim().isEmpty ? 'Judul tidak boleh kosong' : null,
               ),
               const SizedBox(height: 12),
-
               TextFormField(
                 controller: _descController,
                 maxLines: 6,
@@ -183,30 +116,30 @@ class _ArtikelFormPageState extends State<ArtikelFormPage> {
                 validator: (value) =>
                     value!.trim().isEmpty ? 'Deskripsi tidak boleh kosong' : null,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 24),
 
-              Text('Gambar (opsional)',
-                  style: Theme.of(context).textTheme.labelLarge),
-              const SizedBox(height: 8),
-
-              ElevatedButton.icon(
-                onPressed: _pickImage,
-                icon: const Icon(Icons.image),
-                label: const Text('Pilih dari galeri'),
+              // INFO PENTING
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.yellow.shade100,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  'Catatan:\n'
+                  '- Upload gambar tidak tersedia di versi mobile.\n'
+                  '- Gambar artikel dapat diatur melalui web/admin.',
+                  style: TextStyle(fontSize: 13),
+                ),
               ),
-
-              const SizedBox(height: 12),
-
-              _buildImagePreview(),
             ],
           ),
         ),
       ),
-
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16),
         child: ElevatedButton(
-          onPressed: _submit,
+          onPressed: () => _submit(request),
           child: Text(isEdit ? 'Simpan Perubahan' : 'Buat Artikel'),
         ),
       ),

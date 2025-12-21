@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gundex_mobile/artikel/screens/artikel_list_page.dart';
 import 'package:gundex_mobile/menu.dart';
 import 'package:gundex_mobile/userprofile/edit_profile.dart';
 import 'package:gundex_mobile/userprofile/login.dart';
@@ -75,20 +76,12 @@ class MenuCard extends StatelessWidget {
                 builder: (context) => const EditProfilePage(),
               ),
             );
-          } else if (item.name == "Explore Gunung") {
-            // TODO: Navigate to Explore Gunung page
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Explore Gunung - Coming soon!'),
-                backgroundColor: Color(0xFF87A330),
-              ),
-            );
-          } else if (item.name == "Artikel") {
+          }  else if (item.name == "Artikel") {
             // TODO: Navigate to Artikel page
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Artikel - Coming soon!'),
-                backgroundColor: Color(0xFFA1C349),
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ArtikelListPage(),
               ),
             );
           }
